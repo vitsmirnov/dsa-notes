@@ -152,6 +152,61 @@ func RabinKarp(text, target string) []int {
 	return indices
 }
 
+// simple regular expression matching
+// pattern may contain:
+// '?' - matches any single character​​
+// '*' - matches zero or more of character​​s
+func isMatch(s string, pattern string) bool {
+	// time: O(n^2 * m), space: O(n*m)
+	// n - len(s)
+	// m - len(pattern)
+
+	const (
+		unknown = iota
+		match
+		noMatch
+	)
+	p := make([]byte, 0, len(pattern))
+	for i := range pattern {
+		if pattern[i] != '*' || i == 0 || pattern[i-1] != '*' {
+			p = append(p, pattern[i])
+		}
+	}
+	sLen, pLen := len(s), len(p)
+	memo := make([][]int, sLen)
+	for i := range memo {
+		memo[i] = make([]int, pLen)
+	}
+
+	var isMatch func(i, j int) bool // suffix matching
+	isMatch = func(i, j int) bool {
+		if i == sLen || j == pLen {
+			return i == sLen && // s is done
+				(j == pLen || (pLen-j == 1 && p[j] == '*')) // p is done or p == '*'
+		}
+		if memo[i][j] != unknown {
+			return memo[i][j] == match
+		}
+
+		res := false
+		if p[j] == '*' {
+			for _i, _j := i, j+1; _i <= sLen && !res; _i++ {
+				res = isMatch(_i, _j)
+			}
+		} else {
+			res = (p[j] == '?' || s[i] == p[j]) && isMatch(i+1, j+1)
+		}
+		if res {
+			memo[i][j] = match
+		} else {
+			memo[i][j] = noMatch
+		}
+		return res
+	}
+
+	return isMatch(0, 0)
+}
+
 func testFindSubstrings() {
 	const textLen int = 1e8
 	const targetLen int = 1000
