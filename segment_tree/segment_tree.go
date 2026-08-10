@@ -1,15 +1,19 @@
 package main
 
+type InitNodeFunc[T any, E any] func(val E) T
+type BuildNodeFunc[T any] func(leftChild, rightChild T, leftSegLen, rightSegLen int) T
+
 type SegmentTree[T any, E any] struct {
 	nodes     []T
-	initNode  func(val E) T
-	buildNode func(leftChild, rightChild T) T
+	initNode  InitNodeFunc[T, E]
+	buildNode BuildNodeFunc[T]
 	size      int
 }
 
-func MakeSegmentTree[T any, E any](data []E,
-	initNode func(val E) T,
-	buildNode func(leftChild, rightChild T) T) *SegmentTree[T, E] {
+func MakeSegmentTree[T any, E any](
+	data []E,
+	initNode InitNodeFunc[T, E],
+	buildNode BuildNodeFunc[T]) *SegmentTree[T, E] {
 
 	size := len(data)
 	st := &SegmentTree[T, E]{
@@ -31,7 +35,9 @@ func (st *SegmentTree[T, E]) build(data []E, pos int, left, right int) {
 	leftChild, rightChild := pos*2+1, pos*2+2
 	st.build(data, leftChild, left, mid)
 	st.build(data, rightChild, mid+1, right)
-	st.nodes[pos] = st.buildNode(st.nodes[leftChild], st.nodes[rightChild])
+	st.nodes[pos] = st.buildNode(
+		st.nodes[leftChild], st.nodes[rightChild],
+		mid-left+1, right-mid)
 }
 
 func (st *SegmentTree[T, E]) Query(left, right int) T {
@@ -51,7 +57,7 @@ func (st *SegmentTree[T, E]) query(pos int, segLeft, segRight, qLeft, qRight int
 	} else {
 		resLeft := st.query(pos*2+1, segLeft, mid, qLeft, mid)
 		resRight := st.query(pos*2+2, mid+1, segRight, mid+1, qRight)
-		return st.buildNode(resLeft, resRight)
+		return st.buildNode(resLeft, resRight, mid-segLeft+1, segRight-mid)
 	}
 }
 
@@ -72,7 +78,9 @@ func (st *SegmentTree[T, E]) update(pos int, left, right int, index int, value E
 	} else {
 		st.update(rightChild, mid+1, right, index, value)
 	}
-	st.nodes[pos] = st.buildNode(st.nodes[leftChild], st.nodes[rightChild])
+	st.nodes[pos] = st.buildNode(
+		st.nodes[leftChild], st.nodes[rightChild],
+		mid-left+1, right-mid)
 }
 
 func (st *SegmentTree[T, E]) Items(key func(node T) E) []E {
