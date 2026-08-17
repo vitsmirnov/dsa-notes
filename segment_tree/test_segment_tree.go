@@ -24,7 +24,7 @@ func MakeSTTest(numsSize int, minNum, maxNum int) *STTest {
 	initNode := func(val int) MinMaxSum {
 		return MinMaxSum{min: val, max: val, sum: val}
 	}
-	buildNode := func(leftChild, rightChild MinMaxSum, leftSegLen, rightSegLen int) MinMaxSum {
+	buildNode := func(leftChild, rightChild MinMaxSum, left, mid, right int) MinMaxSum {
 		return MinMaxSum{
 			min: min(leftChild.min, rightChild.min),
 			max: max(leftChild.max, rightChild.max),
