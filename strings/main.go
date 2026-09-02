@@ -8,6 +8,9 @@ import (
 )
 
 // todo:
+// Booth's algorithm
+// Duval's algorithm
+// suffix array
 // Knuth-Morris-Pratt
 func KMP(text, target string) []int    { return nil }
 func TwoWay(text, target string) []int { return nil }
