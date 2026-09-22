@@ -252,8 +252,10 @@ func GCD2(a, b int) int {
 }
 
 // least common multiple
-func LCM(a, b int) int     { return Abs(a*b) / GCD(a, b) } // a / GCD(a, b) * b
-func DivCeil(a, b int) int { return (a + b - 1) / b }
+func LCM(a, b int) int        { return Abs(a*b) / GCD(a, b) } // a / GCD(a, b) * b
+func DivCeil(a, b int) int    { return (a + b - 1) / b }
+func SumTo(n int) int         { return n * (n + 1) / 2 } // n*(n-1)/2 - sum to (n-1)
+func IsPowerOfTwo(x int) bool { return x > 0 && x&(x-1) == 0 }
 
 func Abs[T Number](x T) T {
 	if x < 0 {
@@ -456,8 +458,6 @@ func MulMatrices(a, b [][]int, mod int) [][]int {
 	}
 	return res
 }
-
-func IsPowerOfTwo(x int) bool { return x > 0 && x&(x-1) == 0 }
 
 func StrNumToDigits(num string, base int) []int {
 	// time: O(n^2), space: O(1) + O(n)
