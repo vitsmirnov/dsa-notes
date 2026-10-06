@@ -19,7 +19,7 @@ type Number interface{ Integer | float32 | float64 }
 func Pow(base, exp int) int {
 	// time: O(log exp), space: O(log exp)
 
-	return PowMod(base, exp, math.MaxInt)
+	return PowMod2(base, exp, math.MaxInt)
 
 	// if exp == 0 {
 	// 	return 1
@@ -48,7 +48,7 @@ func Pow2(base, exp int) int {
 	return res
 }
 
-func PowMod(base, exp, mod int) int {
+func PowMod2(base, exp, mod int) int {
 	// time: O(log exp), space: O(log exp)
 
 	if exp == 0 {
@@ -57,14 +57,14 @@ func PowMod(base, exp, mod int) int {
 		return base % mod
 	}
 
-	res := PowMod((base*base)%mod, exp>>1, mod)
+	res := PowMod2((base*base)%mod, exp>>1, mod)
 	if exp&1 == 1 {
 		res = (res * base) % mod
 	}
 	return res
 }
 
-func PowMod2(base, exp, mod int) int {
+func PowMod(base, exp, mod int) int {
 	// time: O(log exp), space: O(1)
 
 	res := 1
@@ -76,6 +76,11 @@ func PowMod2(base, exp, mod int) int {
 		exp >>= 1
 	}
 	return res % mod
+}
+
+// 1/a = a^(-1) (mod)
+func ModInv(a int, mod int) int {
+	return PowMod(a, mod-2, mod)
 }
 
 func Sqrt(n int) int {
@@ -264,174 +269,8 @@ func Abs[T Number](x T) T {
 	return x
 }
 
+// todo
 func Calculate(expression string) float64 { return 0 }
-
-func Combinations(n int, k int) [][]int {
-	// time: O(C(n,k)*k), space: O(n) / O(C(n,k)*k) ?
-
-	if k > n {
-		return nil
-	}
-
-	combinations := [][]int{}
-	combination := make([]int, k)
-
-	var combine func(pos int, start int)
-	combine = func(pos int, start int) {
-		if pos == k {
-			combinations = append(combinations, slices.Clone(combination))
-			return
-		}
-
-		for num := start; num < n; num++ {
-			combination[pos] = num
-			combine(pos+1, num+1)
-		}
-	}
-
-	combine(0, 0)
-	return combinations
-}
-
-func UniquePermutations(nums []int) [][]int {
-	// k-permutations of N (partial permutation)
-
-	numsLen := len(nums)
-	permutations := [][]int{}
-
-	var permute func(index int)
-	permute = func(index int) {
-		if index == numsLen {
-			permutations = append(permutations, slices.Clone(nums))
-			return
-		}
-
-		seen := map[int]bool{}
-		for i := index; i < numsLen; i++ {
-			if !seen[nums[i]] {
-				nums[index], nums[i] = nums[i], nums[index]
-				permute(index + 1)
-				nums[index], nums[i] = nums[i], nums[index]
-				seen[nums[i]] = true
-			}
-		}
-	}
-
-	permute(0)
-	return permutations
-}
-
-func UniquePermutations0(nums []int) [][]int {
-	// k-permutations of N (partial permutation)
-
-	numsLen := len(nums)
-	permutations := [][]int{}
-	permutation := make([]int, numsLen)
-	numsLeft := map[int]int{}
-	for _, num := range nums {
-		numsLeft[num]++
-	}
-
-	var permute func(index int)
-	permute = func(index int) {
-		if index == numsLen {
-			permutations = append(permutations, slices.Clone(permutation))
-			return
-		}
-
-		for num, left := range numsLeft {
-			if left > 0 {
-				permutation[index] = num
-				numsLeft[num]--
-				permute(index + 1)
-				numsLeft[num]++
-			}
-		}
-	}
-
-	permute(0)
-	return permutations
-}
-
-func Permutations(n int) [][]int {
-	// time: O(n!*n), space: O(n) ?
-
-	permutations := make([][]int, 0, Factorial(n))
-	permutation := make([]int, n)
-	for i := range permutation {
-		permutation[i] = i
-	}
-
-	var permute func(pos int)
-	permute = func(pos int) {
-		if pos == n {
-			permutations = append(permutations, slices.Clone(permutation))
-			return
-		}
-
-		for i := pos; i < n; i++ {
-			permutation[i], permutation[pos] = permutation[pos], permutation[i]
-			permute(pos + 1)
-			permutation[i], permutation[pos] = permutation[pos], permutation[i]
-		}
-	}
-
-	permute(0)
-	return permutations
-}
-
-func Permutations0(n int) [][]int {
-	// time: O(n!*n), space: O(n) ?
-
-	permutations := make([][]int, 0, Factorial(n))
-	permutation := make([]int, n)
-	usedIndices := make([]bool, n)
-
-	var permute func(pos int)
-	permute = func(pos int) {
-		if pos == n {
-			permutations = append(permutations, slices.Clone(permutation))
-			return
-		}
-
-		for index, used := range usedIndices {
-			if !used {
-				permutation[pos] = index
-				usedIndices[index] = true
-				permute(pos + 1)
-				usedIndices[index] = false
-			}
-		}
-	}
-
-	permute(0)
-	return permutations
-}
-
-func NextPermutation(nums []int) {
-	// time: O(n), space: O(1)
-
-	numsLen := len(nums)
-	i := numsLen - 2
-	for i >= 0 && nums[i] >= nums[i+1] {
-		i--
-	}
-	if i >= 0 {
-		left, right := i+1, numsLen-1
-		for left <= right {
-			mid := left + (right-left)/2
-			if nums[mid] > nums[i] {
-				left = mid + 1
-			} else {
-				right = mid - 1
-			}
-		}
-		nums[i], nums[right] = nums[right], nums[i]
-	}
-	for left, right := i+1, numsLen-1; left < right; left, right = left+1, right-1 {
-		nums[left], nums[right] = nums[right], nums[left]
-	}
-}
 
 func Factorial(n int) int {
 	res := 1
@@ -575,22 +414,6 @@ func testSieve() {
 	fmt.Printf("Count primes test time: %v (%v, %v (sieve))\n", time.Since(t), d1, d2)
 }
 
-func testCombinations() {
-	strs := []string{"a", "b", "c"}
-	for _, indices := range Combinations(len(strs), 2) {
-		for _, index := range indices {
-			fmt.Printf("%v ", strs[index])
-		}
-		fmt.Println()
-	}
-
-	return
-	combinations := Combinations(10, 3)
-	for _, combination := range combinations {
-		fmt.Println(combination)
-	}
-}
-
 func testPow() {
 	pow := func(base, exp int) int {
 		// if exp == 0 {
@@ -607,7 +430,7 @@ func testPow() {
 	for base := range 13 {
 		for exp := range 17 {
 			// res1 := Pow(base, exp)
-			res1 := PowMod(base, exp, math.MaxInt)
+			res1 := PowMod2(base, exp, math.MaxInt)
 			// res2 := int(math.Pow(float64(base), float64(exp)))
 			res2 := pow(base, exp)
 			if res1 != res2 {
