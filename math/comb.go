@@ -6,9 +6,18 @@ import (
 	"slices"
 )
 
+// some formulas
+func NumberOfSubsets(n int) int { return 1 << n } // 2^n
+func NumberOfPairs(n int) int   { return n * (n - 1) / 2 }
+func A(n int, k int) int        { return Factorial(n) / Factorial(n-k) }
+func C2(n int, k int) int       { return Factorial(n) / (Factorial(n-k) * Factorial(k)) }
+
 func C(n int, k int, mod int) int {
 	if k > n {
 		panic(fmt.Sprintf("math.C(): k > n (%v > %v)", k, n))
+	}
+	if k == n {
+		return 1
 	}
 
 	// n! / ((n-k)! * k!)
