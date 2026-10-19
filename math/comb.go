@@ -10,30 +10,35 @@ import (
 func NumberOfSubsets(n int) int { return 1 << n } // 2^n
 func NumberOfPairs(n int) int   { return n * (n - 1) / 2 }
 func A(n int, k int) int        { return Factorial(n) / Factorial(n-k) }
-func C2(n int, k int) int       { return Factorial(n) / (Factorial(n-k) * Factorial(k)) }
+func C2(n int, k int) int       { return Factorial(n) / (Factorial(k) * Factorial(n-k)) }
+func C3(n, k int) int {
+	if k > n {
+		return 0
+	}
+	if k == n || k == 0 {
+		return 1
+	}
+	return C3(n-1, k-1) + C3(n-1, k)
+}
 
 func C(n int, k int, mod int) int {
 	if k > n {
-		panic(fmt.Sprintf("math.C(): k > n (%v > %v)", k, n))
+		return 0 // panic(fmt.Sprintf("math.C(): k > n (%v > %v)", k, n))
 	}
-	if k == n {
+	if k == n || k == 0 {
 		return 1
 	}
 
-	// n! / ((n-k)! * k!)
-	nf := 1
-	for i := 2; i <= n; i++ {
-		nf = (nf * i) % mod
+	// n! / (k! * (n-k)!)
+	numer := 1
+	for i := n - k + 1; i <= n; i++ {
+		numer = (numer * i) % mod
 	}
-	nkf := 1
-	for i, nk := 2, n-k; i <= nk; i++ {
-		nkf = (nkf * i) % mod
-	}
-	kf := 1
+	denom := 1
 	for i := 2; i <= k; i++ {
-		kf = (kf * i) % mod
+		denom = (denom * i) % mod
 	}
-	return ((nf * ModInv(nkf, mod)) % mod * ModInv(kf, mod)) % mod
+	return (numer * ModInv(denom, mod)) % mod
 }
 
 func Combinations(n int, k int) [][]int {
