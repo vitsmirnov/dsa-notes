@@ -30,15 +30,15 @@ func C(n int, k int, mod int) int {
 	}
 
 	// n! / (k! * (n-k)!)
-	numer := 1
+	nFactDivNKFact := 1 // n! / (n-k)!
 	for i := n - k + 1; i <= n; i++ {
-		numer = (numer * i) % mod
+		nFactDivNKFact = (nFactDivNKFact * i) % mod
 	}
-	denom := 1
+	kFact := 1 // k!
 	for i := 2; i <= k; i++ {
-		denom = (denom * i) % mod
+		kFact = (kFact * i) % mod
 	}
-	return (numer * ModInv(denom, mod)) % mod
+	return (nFactDivNKFact * ModInv(kFact, mod)) % mod
 }
 
 func PascalsTriangle(n int, mod int) [][]int {
