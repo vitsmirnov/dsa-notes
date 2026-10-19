@@ -41,6 +41,20 @@ func C(n int, k int, mod int) int {
 	return (numer * ModInv(denom, mod)) % mod
 }
 
+func PascalsTriangle(n int, mod int) [][]int {
+	triangle := make([][]int, n)
+	for i := range triangle {
+		triangle[i] = make([]int, i+1)
+		triangle[i][0] = 1
+		triangle[i][i] = 1
+		for j, e := 1, i/2; j <= e; j++ {
+			triangle[i][j] = (triangle[i-1][j-1] + triangle[i-1][j]) % mod
+			triangle[i][i-j] = triangle[i][j]
+		}
+	}
+	return triangle
+}
+
 func Combinations(n int, k int) [][]int {
 	// time: O(C(n,k)*k), space: O(n) / O(C(n,k)*k) ?
 
